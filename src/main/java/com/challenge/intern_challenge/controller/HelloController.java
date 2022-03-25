@@ -11,14 +11,19 @@ public class HelloController {
         return String.format("Olá %s!", name);
     }
 
-    @GetMapping(value = "/CreateNewFile")
+    @GetMapping(value = "/createNewFile")
     public String createNewFile(@RequestParam(value = "name", defaultValue = "Mundo") String name) {
-        return String.format("criar new file!");
+        return "criar new file!";
     }
 
-    @GetMapping(value = "/financialByTrader ")
+    @GetMapping(value = "/financialByTrader")
     public String getFinancialByTrader() {
-        return String.format("retornar financial by trader!");
+        return "retornar financial by trader!";
+    }
+
+    @GetMapping(value = "/error")
+    public String getError() {
+        return "Unexpected error. Try again Later!";
     }
 
 }
