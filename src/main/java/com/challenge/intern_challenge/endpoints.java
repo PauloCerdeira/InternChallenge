@@ -15,25 +15,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
-public class application {
+public class endpoints {
 
     @GetMapping(value = "/")
     public String helloWorld(@RequestParam(value = "name", defaultValue = "Mundo") String name) {
+        System.out.println("endpoint '/' accessed.");
         return String.format("Olá %s!", name);
     }
 
     @GetMapping(value = "/createNewFile")
     public String createNewFile() {
+        System.out.println("endpoint '/createNewFile' accessed.");
         try {
             String url = "jdbc:h2:mem:memDb";
             Connection conn = DriverManager.getConnection(url, "sa", "");
             java.sql.Statement stat = conn.createStatement();
-            ResultSet rs = stat.executeQuery("SELECT traders.code AS tradercode, traders.name AS traderName, trades.order_id AS OrderID, orders.ticker, SUM(trades.quantity) AS QTY, ROUND(AVG(trades.price),6) AS AVGprice FROM trades LEFT JOIN orders ON orders.id = trades.order_id LEFT JOIN traders ON orders.trader_code=traders.code GROUP BY trades.order_id");
+            ResultSet rs = stat.executeQuery(
+                    "SELECT traders.code AS tradercode, traders.name AS traderName, trades.order_id AS OrderID, orders.ticker, SUM(trades.quantity) AS QTY, ROUND(AVG(trades.price),6) AS AVGprice FROM trades LEFT JOIN orders ON orders.id = trades.order_id LEFT JOIN traders ON orders.trader_code=traders.code GROUP BY trades.order_id");
 
             File file = new File("C:\\temp\\file.csv");
             PrintWriter pw = new PrintWriter(file);
             StringBuilder sb = new StringBuilder();
-            
+
             sb.append("TraderCode; TraderName; OrderID; Ticker; Qty; AVGPrice;\n");
             while (rs.next()) {
                 sb.append(rs.getString("tradercode") + ';');
@@ -66,14 +69,16 @@ public class application {
 
     @GetMapping(value = "/financialByTrader")
     public JSONArray financialByTrader() {
-        JSONArray array = new JSONArray();    
+        System.out.println("endpoint '/financialByTrader' accessed.");
+        JSONArray array = new JSONArray();
         try {
             String url = "jdbc:h2:mem:memDb";
             Connection conn = DriverManager.getConnection(url, "sa", "");
             java.sql.Statement stat = conn.createStatement();
-            ResultSet rs = stat.executeQuery("SELECT traders.code AS TRADERCODE, ROUND(Sum(trades.price * trades.quantity),6) AS TOTAL FROM trades LEFT JOIN orders ON trades.order_id = orders.id LEFT JOIN traders ON orders.trader_code=traders.code group by traders.code");
-            
-            while (rs.next()) {   
+            ResultSet rs = stat.executeQuery(
+                    "SELECT traders.code AS TRADERCODE, ROUND(Sum(trades.price * trades.quantity),6) AS TOTAL FROM trades LEFT JOIN orders ON trades.order_id = orders.id LEFT JOIN traders ON orders.trader_code=traders.code group by traders.code");
+
+            while (rs.next()) {
                 JSONObject obj = new JSONObject();
                 // System.out.println("tradercode = " + rs.getString("tradercode"));
                 // System.out.println("total = " + rs.getString("total"));
@@ -81,7 +86,8 @@ public class application {
                 obj.put("total", rs.getString("total"));
                 array.add(obj);
             }
-            rs.close();  
+            rs.close();
+            System.out.println("JSON sent");
         } catch (Exception error) {
             System.out.println(error);
         }
